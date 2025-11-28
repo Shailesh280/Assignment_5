@@ -1,0 +1,41 @@
+/* Global modern UI theme */
+
+body {
+  margin: 0;
+  background: #f3f6fb;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+  color: #1f2937;
+}
+
+/* Antd Card Improvements */
+.ant-card {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+/* Antd Form Inputs */
+.ant-input,
+.ant-input-number,
+.ant-select-selector {
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+}
+
+/* Buttons */
+.ant-btn {
+  border-radius: 8px !important;
+  padding: 6px 16px !important;
+  font-weight: 500;
+}
+
+/* Table */
+.ant-table {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+/* Header */
+.ant-layout-header {
+  background: white !important;
+  border-bottom: 1px solid #e5e7eb;
+}
