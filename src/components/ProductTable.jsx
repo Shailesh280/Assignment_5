@@ -18,12 +18,10 @@ export default function ProductTable() {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     fetchProducts();
-    // eslint-disable-next-line
   }, [filters.search, filters.category]);
 
   const fetchProducts = async () => {
@@ -59,7 +57,6 @@ export default function ProductTable() {
     try {
       const res = await axios.get("https://dummyjson.com/products/categories");
 
-      // Format DummyJSON V3 categories { slug, name, url }
       const formatted = res.data?.map((c) => ({
         slug: c.slug,
         name: c.name,
@@ -136,7 +133,7 @@ export default function ProductTable() {
               setOpenModal(true);
             }}
           >
-            Add / Edit
+            Edit
           </Button>
         </Space>
       ),
@@ -145,7 +142,6 @@ export default function ProductTable() {
 
   return (
     <>
-      {/* Filters */}
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Space>
@@ -183,7 +179,6 @@ export default function ProductTable() {
         </Space>
       </Card>
 
-      {/* Product Table */}
       <Table
         rowKey="id"
         loading={loading}
@@ -193,7 +188,6 @@ export default function ProductTable() {
         onChange={handleTableChange}
       />
 
-      {/* Add/Edit Modal */}
       <ProductModal open={openModal} onClose={() => setOpenModal(false)} />
     </>
   );

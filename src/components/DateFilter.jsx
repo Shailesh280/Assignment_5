@@ -41,7 +41,6 @@ export default function DateFilter() {
                 onChange={onRangeChange}
                 disabledDate={disabledDate}
                 allowClear={false}
-                // show time removed for simplicity; uses dayjs date objects
               />
             </div>
           </div>

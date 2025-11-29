@@ -59,8 +59,7 @@ export default function ProductModal({ open, onClose }) {
       onClose();
       navigate("/confirm");
     } catch (err) {
-      // Validation handled automatically
-    }
+      message.error("Please fill all required fields.");}
   };
 
   return (
