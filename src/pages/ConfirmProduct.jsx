@@ -20,7 +20,7 @@ export default function ConfirmProduct({ messageApi }) {
     try {
       const res = await axios.post("https://dummyjson.com/products/add", selectedProduct);
       addProductToList(res.data);
-
+      console.log("Product created:", res.data);
       messageApi.open({
         type: "success",
         content: `Product created successfully! ID: ${res.data.id}`,

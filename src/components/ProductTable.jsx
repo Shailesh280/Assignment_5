@@ -15,7 +15,6 @@ export default function ProductTable() {
   const [openModal, setOpenModal] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
 
-  // ⬅ NEW: stabilized mount to prevent concurrent rendering crash
   const [initialized, setInitialized] = useState(false);
   useEffect(() => {
     setInitialized(true);
@@ -27,7 +26,7 @@ export default function ProductTable() {
   }, []);
 
   useEffect(() => {
-    if (!initialized) return; // prevent React crash during transition
+    if (!initialized) return;
     fetchProducts();
   }, [filters.search, filters.category, extraProducts, initialized]);
 
@@ -36,23 +35,33 @@ export default function ProductTable() {
     try {
       const limit = 100;
       const res = await axios.get(`https://dummyjson.com/products?limit=${limit}`);
-      let list = res.data.products || [];
+      const apiProducts = res.data.products || [];
 
-      if (extraProducts.length > 0) {
-        list = [...extraProducts, ...list];
-      }
+      let finalExtras = extraProducts;
+      let finalAPI = apiProducts;
 
       if (filters.search && filters.search.trim().length > 0) {
         const keyword = filters.search.trim().toLowerCase();
-        list = list.filter((p) => p.title.toLowerCase().includes(keyword));
+
+        finalExtras = extraProducts.filter((p) =>
+          p.title.toLowerCase().includes(keyword)
+        );
+
+        finalAPI = apiProducts.filter((p) =>
+          p.title.toLowerCase().includes(keyword)
+        );
       }
+
+      let finalProducts = [...finalExtras, ...finalAPI];
 
       if (filters.category && filters.category !== "all") {
-        list = list.filter((p) => p.category === filters.category);
+        finalProducts = finalProducts.filter(
+          (p) => p.category === filters.category
+        );
       }
 
-      setProducts(list);
-      setPagination((p) => ({ ...p, total: list.length }));
+      setProducts(finalProducts);
+      setPagination((p) => ({ ...p, total: finalProducts.length }));
     } catch (err) {
       console.error(err);
       message.error("Failed to fetch products.");

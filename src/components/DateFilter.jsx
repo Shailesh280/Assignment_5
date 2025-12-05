@@ -7,7 +7,6 @@ export default function DateFilter() {
   const { filters, setFilters } = useProductContext();
 
   useEffect(() => {
-    // Set default range ONLY if missing
     if (!filters.startDate || !filters.endDate) {
       const end = dayjs();
       const start = end.subtract(7, "day");
@@ -45,7 +44,6 @@ export default function DateFilter() {
     <Card style={{ marginBottom: 16, borderRadius: 12, padding: 18 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
         
-        {/* LEFT SIDE */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
           <strong>Date Range:</strong>
           <div style={{
@@ -76,7 +74,6 @@ export default function DateFilter() {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
         <div style={{ textAlign: "right", color: "#777", lineHeight: 1.6 }}>
           <div>Chosen start: {filters.startDate ? filters.startDate.format("YYYY-MM-DD") : "-"}</div>
           <div>Chosen end: {filters.endDate ? filters.endDate.format("YYYY-MM-DD") : "-"}</div>

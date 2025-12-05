@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../logo.png"; // make sure PMD logo is placed here
+import logo from "../logo.png"; 
 import { Layout, Typography } from "antd";
 
 const { Header } = Layout;

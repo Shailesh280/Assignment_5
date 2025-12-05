@@ -1,7 +1,7 @@
 import { Descriptions } from "antd";
 
 export default function ProductDetailsList({ product }) {
-  if (!product) return null;  // ← Prevent crash
+  if (!product) return null;  
 
   return (
     <Descriptions bordered column={1}>
