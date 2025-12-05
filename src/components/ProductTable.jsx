@@ -8,7 +8,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 export default function ProductTable() {
-  const { filters, setFilters, setSelectedProduct } = useProductContext();
+  const { filters, setFilters, setSelectedProduct, extraProducts } = useProductContext();
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -22,23 +22,27 @@ export default function ProductTable() {
 
   useEffect(() => {
     fetchProducts();
-  }, [filters.search, filters.category]);
+  }, [filters.search, filters.category, extraProducts]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const limit = 100;
-      let url = `https://dummyjson.com/products?limit=${limit}`;
-
-      if (filters.search && filters.search.trim().length > 0) {
-        url = `https://dummyjson.com/products/search?q=${encodeURIComponent(
-          filters.search
-        )}&limit=${limit}`;
-      }
-
-      const res = await axios.get(url);
+      const res = await axios.get(`https://dummyjson.com/products?limit=${limit}`);
       let list = res.data.products || [];
 
+      // Include newly added session products
+      if (extraProducts.length > 0) {
+        list = [...extraProducts, ...list];
+      }
+
+      // 🔍 Search only by title
+      if (filters.search && filters.search.trim().length > 0) {
+        const keyword = filters.search.trim().toLowerCase();
+        list = list.filter((p) => p.title.toLowerCase().includes(keyword));
+      }
+
+      // 🔻 Category filter
       if (filters.category && filters.category !== "all") {
         list = list.filter((p) => p.category === filters.category);
       }
@@ -56,14 +60,7 @@ export default function ProductTable() {
   const fetchCategories = async () => {
     try {
       const res = await axios.get("https://dummyjson.com/products/categories");
-
-      const formatted = res.data?.map((c) => ({
-        slug: c.slug,
-        name: c.name,
-        url: c.url,
-      })) || [];
-
-      setCategories(formatted);
+      setCategories(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -88,12 +85,7 @@ export default function ProductTable() {
         <img
           src={val}
           alt="thumb"
-          style={{
-            width: 64,
-            height: 48,
-            objectFit: "cover",
-            borderRadius: 6,
-          }}
+          style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 6 }}
         />
       ),
     },
@@ -119,7 +111,6 @@ export default function ProductTable() {
       title: "Category",
       dataIndex: "category",
       key: "category",
-      render: (slug) => categories.find((c) => c.slug === slug)?.name || slug,
     },
     {
       title: "Action",
@@ -158,10 +149,9 @@ export default function ProductTable() {
               style={{ width: 200 }}
             >
               <Option value="all">All Categories</Option>
-
               {categories.map((c) => (
-                <Option value={c.slug} key={c.slug}>
-                  {c.name}
+                <Option value={c} key={c}>
+                  {c}
                 </Option>
               ))}
             </Select>

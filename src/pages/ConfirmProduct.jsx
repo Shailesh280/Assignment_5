@@ -6,7 +6,7 @@ import { useProductContext } from "../context/ProductContext";
 import ProductSummaryCard from "../components/ProductSummaryCard";
 
 export default function ConfirmProduct() {
-  const { selectedProduct, setSelectedProduct } = useProductContext();
+  const { selectedProduct, setSelectedProduct, addProductToList } = useProductContext();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -19,7 +19,12 @@ export default function ConfirmProduct() {
     setLoading(true);
     try {
       const res = await axios.post("https://dummyjson.com/products/add", selectedProduct);
-      message.success("Product created successfully! Fake id: " + res.data.id);
+
+      // store in context so dashboard shows it immediately
+      addProductToList(res.data);
+
+      message.success(`Product created successfully! Fake ID: ${res.data.id}`);
+
       setSelectedProduct(null);
       navigate("/");
     } catch {

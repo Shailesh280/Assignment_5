@@ -104,7 +104,6 @@ export default function ProductModal({ open, onClose }) {
         <Form.Item
           name="brand"
           label="Brand"
-          rules={[{ required: true }]}
         >
           <Input placeholder="Enter brand" />
         </Form.Item>

@@ -12,11 +12,19 @@ export function ProductProvider({ children }) {
 
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  const [extraProducts, setExtraProducts] = useState([]);
+
+  const addProductToList = (product) => {
+    setExtraProducts((prev) => [product, ...prev]); 
+  };
+
   const value = {
     filters,
     setFilters,
     selectedProduct,
     setSelectedProduct,
+    extraProducts,
+    addProductToList,
   };
 
   return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
