@@ -1,6 +1,8 @@
 import { Descriptions } from "antd";
 
 export default function ProductDetailsList({ product }) {
+  if (!product) return null;  // ← Prevent crash
+
   return (
     <Descriptions bordered column={1}>
       <Descriptions.Item label="Title">{product.title}</Descriptions.Item>

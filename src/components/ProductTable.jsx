@@ -15,14 +15,21 @@ export default function ProductTable() {
   const [openModal, setOpenModal] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
 
+  // ⬅ NEW: stabilized mount to prevent concurrent rendering crash
+  const [initialized, setInitialized] = useState(false);
+  useEffect(() => {
+    setInitialized(true);
+  }, []);
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
 
   useEffect(() => {
+    if (!initialized) return; // prevent React crash during transition
     fetchProducts();
-  }, [filters.search, filters.category, extraProducts]);
+  }, [filters.search, filters.category, extraProducts, initialized]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -31,18 +38,15 @@ export default function ProductTable() {
       const res = await axios.get(`https://dummyjson.com/products?limit=${limit}`);
       let list = res.data.products || [];
 
-      // Include newly added session products
       if (extraProducts.length > 0) {
         list = [...extraProducts, ...list];
       }
 
-      // 🔍 Search only by title
       if (filters.search && filters.search.trim().length > 0) {
         const keyword = filters.search.trim().toLowerCase();
         list = list.filter((p) => p.title.toLowerCase().includes(keyword));
       }
 
-      // 🔻 Category filter
       if (filters.category && filters.category !== "all") {
         list = list.filter((p) => p.category === filters.category);
       }

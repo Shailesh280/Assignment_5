@@ -7,12 +7,13 @@ export default function DateFilter() {
   const { filters, setFilters } = useProductContext();
 
   useEffect(() => {
-    if (!filters.startDate && !filters.endDate) {
+    // Set default range ONLY if missing
+    if (!filters.startDate || !filters.endDate) {
       const end = dayjs();
       const start = end.subtract(7, "day");
       setFilters(prev => ({ ...prev, startDate: start, endDate: end }));
     }
-  }, []);
+  }, [filters, setFilters]);
 
   const handleStartChange = (date) => {
     setFilters(prev => ({ ...prev, startDate: date }));
@@ -25,19 +26,19 @@ export default function DateFilter() {
   const disableStartDate = (current) => {
     const { endDate } = filters;
     const today = dayjs().endOf("day");
-    if (!current) return false;
-    if (current > today) return true;
-    if (endDate && current > endDate) return true;
-    return false;
+    return (
+      current &&
+      (current > today || (endDate && current > endDate))
+    );
   };
 
   const disableEndDate = (current) => {
     const { startDate } = filters;
     const today = dayjs().endOf("day");
-    if (!current) return false;
-    if (current > today) return true;
-    if (startDate && current < startDate) return true;
-    return false;
+    return (
+      current &&
+      (current > today || (startDate && current < startDate))
+    );
   };
 
   return (
@@ -47,18 +48,16 @@ export default function DateFilter() {
         {/* LEFT SIDE */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
           <strong>Date Range:</strong>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              background: "#fff",
-              padding: "10px 14px",
-              borderRadius: 12,
-              border: "1px solid #e3e3e3",
-              width: "fit-content"
-            }}
-          >
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: "#fff",
+            padding: "10px 14px",
+            borderRadius: 12,
+            border: "1px solid #e3e3e3",
+            width: "fit-content"
+          }}>
             <DatePicker
               value={filters.startDate}
               onChange={handleStartChange}

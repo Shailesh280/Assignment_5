@@ -1,45 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useProductContext } from "../context/ProductContext";
 import ProductSummaryCard from "../components/ProductSummaryCard";
 
-export default function ConfirmProduct() {
+export default function ConfirmProduct({ messageApi }) {
   const { selectedProduct, setSelectedProduct, addProductToList } = useProductContext();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  if (!selectedProduct) {
-    navigate("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!selectedProduct) navigate("/");
+  }, [selectedProduct, navigate]);
 
   const onConfirm = async () => {
+    if (!selectedProduct) return;
+
     setLoading(true);
     try {
       const res = await axios.post("https://dummyjson.com/products/add", selectedProduct);
-
-      // store in context so dashboard shows it immediately
       addProductToList(res.data);
 
-      message.success(`Product created successfully! Fake ID: ${res.data.id}`);
+      messageApi.open({
+        type: "success",
+        content: `Product created successfully! ID: ${res.data.id}`,
+        duration: 2,
+      });
 
       setSelectedProduct(null);
-      navigate("/");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 400);
+
     } catch {
-      message.error("Failed to create product");
+      messageApi.open({
+        type: "error",
+        content: "Failed to create product",
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const onBack = () => {
+    setSelectedProduct(null);
+    navigate("/");
+  };
+
   return (
-    <ProductSummaryCard
-      product={selectedProduct}
-      loading={loading}
-      onBack={() => navigate(-1)}
-      onConfirm={onConfirm}
-    />
+    selectedProduct && (
+      <ProductSummaryCard
+        product={selectedProduct}
+        loading={loading}
+        onBack={onBack}
+        onConfirm={onConfirm}
+      />
+    )
   );
 }
