@@ -8,63 +8,50 @@ const { Search } = Input;
 const { Option } = Select;
 
 export default function ProductTable() {
-  const { filters, setFilters, setSelectedProduct, extraProducts } = useProductContext();
+  const { filters, setFilters, setSelectedProduct } = useProductContext();
+
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
-
-  const [initialized, setInitialized] = useState(false);
-  useEffect(() => {
-    setInitialized(true);
-  }, []);
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 8 });
 
   useEffect(() => {
-    fetchProducts();
     fetchCategories();
   }, []);
 
   useEffect(() => {
-    if (!initialized) return;
     fetchProducts();
-  }, [filters.search, filters.category, extraProducts, initialized]);
+  }, [filters.search, filters.category, filters.startDate, filters.endDate]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const limit = 100;
-      const res = await axios.get(`https://dummyjson.com/products?limit=${limit}`);
-      const apiProducts = res.data.products || [];
+      const params = {};
 
-      let finalExtras = extraProducts;
-      let finalAPI = apiProducts;
-
-      if (filters.search && filters.search.trim().length > 0) {
-        const keyword = filters.search.trim().toLowerCase();
-
-        finalExtras = extraProducts.filter((p) =>
-          p.title.toLowerCase().includes(keyword)
-        );
-
-        finalAPI = apiProducts.filter((p) =>
-          p.title.toLowerCase().includes(keyword)
-        );
+      if (filters.search) {
+        params.search = filters.search;
       }
-
-      let finalProducts = [...finalExtras, ...finalAPI];
 
       if (filters.category && filters.category !== "all") {
-        finalProducts = finalProducts.filter(
-          (p) => p.category === filters.category
-        );
+        params.category = filters.category;
       }
 
-      setProducts(finalProducts);
-      setPagination((p) => ({ ...p, total: finalProducts.length }));
+      if (filters.startDate && filters.endDate) {
+        params.startDate = filters.startDate.format("YYYY-MM-DD");
+        params.endDate = filters.endDate.format("YYYY-MM-DD");
+      }
+
+      const res = await axios.get(
+        "http://localhost:8080/api/products",
+        { params }
+      );
+
+      setProducts(res.data);
+      setPagination((p) => ({ ...p, total: res.data.length }));
     } catch (err) {
       console.error(err);
-      message.error("Failed to fetch products.");
+      message.error("Failed to load products");
     } finally {
       setLoading(false);
     }
@@ -72,74 +59,49 @@ export default function ProductTable() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("https://dummyjson.com/products/categories");
-      setCategories(res.data || []);
+      const res = await axios.get(
+        "http://localhost:8080/api/products/categories"
+      );
+      setCategories(res.data);
     } catch (err) {
       console.error(err);
+      message.error("Failed to load categories");
     }
-  };
-
-  const onSearch = (value) => {
-    setFilters((prev) => ({ ...prev, search: value }));
-    setPagination((p) => ({ ...p, current: 1 }));
-  };
-
-  const handleTableChange = (pag) => {
-    setPagination(pag);
   };
 
   const columns = [
     {
       title: "Thumbnail",
       dataIndex: "thumbnail",
-      key: "thumbnail",
-      width: 100,
       render: (val) => (
         <img
           src={val}
           alt="thumb"
-          style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 6 }}
+          style={{
+            width: 64,
+            height: 48,
+            objectFit: "cover",
+            borderRadius: 6,
+          }}
         />
       ),
     },
-    {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
-      sorter: (a, b) => a.title.localeCompare(b.title),
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      sorter: (a, b) => a.price - b.price,
-      render: (val) => `₹ ${val}`,
-    },
-    {
-      title: "Brand",
-      dataIndex: "brand",
-      key: "brand",
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-    },
+    { title: "Title", dataIndex: "title" },
+    { title: "Price", dataIndex: "price", render: (v) => `₹ ${v}` },
+    { title: "Brand", dataIndex: "brand" },
+    { title: "Category", dataIndex: "category" },
     {
       title: "Action",
-      key: "action",
       render: (_, record) => (
-        <Space>
-          <Button
-            size="small"
-            onClick={() => {
-              setSelectedProduct(record);
-              setOpenModal(true);
-            }}
-          >
-            Edit
-          </Button>
-        </Space>
+        <Button
+          size="small"
+          onClick={() => {
+            setSelectedProduct(record); 
+            setOpenModal(true);
+          }}
+        >
+          Edit
+        </Button>
       ),
     },
   ];
@@ -151,19 +113,23 @@ export default function ProductTable() {
           <Space>
             <Search
               placeholder="Search products"
-              onSearch={onSearch}
+              onSearch={(v) =>
+                setFilters((p) => ({ ...p, search: v }))
+              }
               enterButton
               allowClear
             />
 
             <Select
               value={filters.category || "all"}
-              onChange={(val) => setFilters((prev) => ({ ...prev, category: val }))}
+              onChange={(val) =>
+                setFilters((p) => ({ ...p, category: val }))
+              }
               style={{ width: 200 }}
             >
               <Option value="all">All Categories</Option>
               {categories.map((c) => (
-                <Option value={c} key={c}>
+                <Option key={c} value={c}>
                   {c}
                 </Option>
               ))}
@@ -187,9 +153,17 @@ export default function ProductTable() {
         loading={loading}
         dataSource={products}
         columns={columns}
-        pagination={pagination}
-        onChange={handleTableChange}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: products.length,
+          showSizeChanger: false
+        }}
+        onChange={(pag) => {
+          setPagination(pag);
+        }}
       />
+
 
       <ProductModal open={openModal} onClose={() => setOpenModal(false)} />
     </>

@@ -28,6 +28,32 @@
   color: #61dafb;
 }
 
+.confirm-page {
+  width: 100%;
+  min-height: calc(100vh - 160px); /* adjusts for header */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 24px;
+}
+
+.confirm-card {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.confirm-card .ant-card-body {
+  padding: 24px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

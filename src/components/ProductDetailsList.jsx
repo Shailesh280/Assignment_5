@@ -13,8 +13,6 @@ export default function ProductDetailsList({ product }) {
       <Descriptions.Item label="Thumbnail">
         <img src={product.thumbnail} alt="thumb" style={{ width: 150, borderRadius: 8 }} />
       </Descriptions.Item>
-      <Descriptions.Item label="Start Date">{product.createdAtStart}</Descriptions.Item>
-      <Descriptions.Item label="End Date">{product.createdAtEnd}</Descriptions.Item>
     </Descriptions>
   );
 }

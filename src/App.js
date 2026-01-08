@@ -15,7 +15,7 @@ export default function App() {
       {contextHolder} 
       <Layout style={{ minHeight: "100vh" }}>
         <AppHeader />
-        <Content style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}>
+        <Content style={{ padding: "24px"}}>
           <Routes>
             <Route path="/" element={<Dashboard messageApi={messageApi} />} />
             <Route path="/confirm" element={<ConfirmProduct messageApi={messageApi} />} />

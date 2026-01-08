@@ -1,16 +1,32 @@
 import { Card, Divider } from "antd";
 import ProductDetailsList from "./ProductDetailsList";
 import ConfirmActions from "./ConfirmActions";
+import "../App.css"; 
 
-export default function ProductSummaryCard({ product, loading, onBack, onConfirm }) {
+export default function ProductSummaryCard({
+  product,
+  loading,
+  onBack,
+  onConfirm,
+}) {
   return (
-    <Card
-      title="Confirm Product Details"
-      style={{ borderRadius: 12, boxShadow: "0 4px 14px rgba(0,0,0,0.08)" }}
-    >
-      <ProductDetailsList product={product} />
-      <Divider />
-      <ConfirmActions loading={loading} onBack={onBack} onConfirm={onConfirm} />
-    </Card>
+    <div className="confirm-page">
+      <Card
+        title="Confirm Product Details"
+        className="confirm-card"
+      >
+        <ProductDetailsList product={product} />
+
+        <Divider />
+
+        <div className="confirm-actions">
+          <ConfirmActions
+            loading={loading}
+            onBack={onBack}
+            onConfirm={onConfirm}
+          />
+        </div>
+      </Card>
+    </div>
   );
 }

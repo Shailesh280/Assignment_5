@@ -5,57 +5,51 @@ import { useProductContext } from "../context/ProductContext";
 import ProductSummaryCard from "../components/ProductSummaryCard";
 
 export default function ConfirmProduct({ messageApi }) {
-  const { selectedProduct, setSelectedProduct, addProductToList } = useProductContext();
+  const { selectedProduct, setSelectedProduct } = useProductContext();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!selectedProduct) navigate("/");
+    if (!selectedProduct) {
+      navigate("/");
+    }
   }, [selectedProduct, navigate]);
 
-  const onConfirm = async () => {
-    if (!selectedProduct) return;
+  if (!selectedProduct) return null;
 
+  const onConfirm = async () => {
     setLoading(true);
     try {
-      const res = await axios.post("https://dummyjson.com/products/add", selectedProduct);
-      addProductToList(res.data);
-      console.log("Product created:", res.data);
-      messageApi.open({
-        type: "success",
-        content: `Product created successfully! ID: ${res.data.id}`,
-        duration: 2,
-      });
+      if (selectedProduct.id) {
+        await axios.put(
+          `http://localhost:8080/api/products/${selectedProduct.id}`,
+          selectedProduct
+        );
+        messageApi.success("Product updated successfully");
+      } else {
+        await axios.post(
+          "http://localhost:8080/api/products",
+          selectedProduct
+        );
+        messageApi.success("Product added successfully");
+      }
 
       setSelectedProduct(null);
-
-      setTimeout(() => {
-        navigate("/");
-      }, 400);
-
-    } catch {
-      messageApi.open({
-        type: "error",
-        content: "Failed to create product",
-      });
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      messageApi.error("Failed to save product");
     } finally {
       setLoading(false);
     }
   };
 
-  const onBack = () => {
-    setSelectedProduct(null);
-    navigate("/");
-  };
-
   return (
-    selectedProduct && (
-      <ProductSummaryCard
-        product={selectedProduct}
-        loading={loading}
-        onBack={onBack}
-        onConfirm={onConfirm}
-      />
-    )
+    <ProductSummaryCard
+      product={selectedProduct}
+      loading={loading}
+      onBack={() => navigate(-1)}
+      onConfirm={onConfirm}
+    />
   );
 }
